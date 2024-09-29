@@ -15,6 +15,9 @@ const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, isDarkMode }) => {
                 <Link href="/dashboard/sheets">
                 <Button variant="ghost" className="w-full justify-start">Explore Sheets</Button>
                 </Link>
+                <Link href="/dashboard/event-tracker">
+                <Button variant="ghost" className="w-full justify-start">Open Calendar</Button>
+                </Link>
                 <Button variant="ghost" className="w-full justify-start">My Sheets</Button>
                 <Button variant="ghost" className="w-full justify-start">Notes</Button>
                 <Button variant="ghost" className="w-full justify-start">Analysis</Button>
