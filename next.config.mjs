@@ -1,4 +1,10 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {};
-
-export default nextConfig;
+const nextConfig = {
+    reactStrictMode: true,
+    images: {
+      domains: ['assets.leetcode.com'], // Allow images from LeetCode
+    },
+  };
+  
+  export default nextConfig;
+  

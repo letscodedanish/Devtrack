@@ -89,7 +89,6 @@ interface BarComponentProps {
 
 export function CodolioDashboard() {
   const [leetcodeUsername, setLeetcodeUsername] = React.useState("");
-  const [gfgHandle, setGfgHandle] = useState("");
 
   const [leetcodeData, setLeetcodeData] = useState<LeetCodeProfile | null>(
     null
@@ -99,16 +98,10 @@ export function CodolioDashboard() {
     null
   );
 
-  interface GfgData {
-    data: {
-      name: string;
-      // Add other properties as needed
-    };
-  }
-
-  const [gfgData, setGfgData] = useState<GfgData | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const fetchLeetcodeData = async () => {
+    setLoading(true);
     try {
       const response: Response = await fetch(
         `https://alfa-leetcode-api.onrender.com/${leetcodeUsername}`
@@ -121,20 +114,49 @@ export function CodolioDashboard() {
       setLeetcodeData2(leetcodeSecondResponse);
     } catch (error) {
       console.error("Error fetching Leetcode data:", error);
+    }finally {
+      setLoading(false); // Stop loader when data is fetched
     }
   };
 
-  const fetchGfgData = async () => {
-    try {
-      const response = await fetch(
-        `https://authapi.geeksforgeeks.org/api-get/user-profile-info/?handle=${gfgHandle}`
-      );
-      const data = await response.json();
-      setGfgData(data);
-    } catch (error) {
-      console.error("Error fetching GeeksforGeeks data:", error);
-    }
-  };
+  // const fetchLeetcodeData = async () => {
+  //   try {
+  //     // First, attempt to get the data from the database (via Next.js API)
+  //     const response = await fetch('/api/leetcode', {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify({ username: leetcodeUsername }),
+  //     });
+
+  //     if (response.ok) {
+  //       const data = await response.json();
+  //       setLeetcodeData(data);
+  //       setLeetcodeData2({
+  //         totalSolved: data.totalSolved,
+  //         totalQuestions: data.totalQuestions,
+  //         easySolved: data.easySolved,
+  //         mediumSolved: data.mediumSolved,
+  //         hardSolved: data.hardSolved,
+  //         recentSubmissions: data.recentSubmissions,
+  //         totalSubmissions: data.totalSubmissions || [],
+  //         totalEasy: data.totalEasy || 0,
+  //         totalMedium: data.totalMedium || 0,
+  //         totalHard: data.totalHard || 0,
+  //         ranking: data.ranking || 0,
+  //         contributionPoint: data.contributionPoint || 0,
+  //         reputation: data.reputation || 0,
+  //         submissionCalendar: data.submissionCalendar || {},
+  //         matchedUserStats: data.matchedUserStats || { acSubmissionNum: [], totalSubmissionNum: [] },
+  //       });
+  //     } else {
+  //       console.error("Error fetching data from the database");
+  //     }
+  //   } catch (error) {
+  //     console.error("Error fetching Leetcode data:", error);
+  //   }
+  // };
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -150,7 +172,7 @@ export function CodolioDashboard() {
 
           <div className="flex gap-10 mb-6">
             <div className="mb-4 ml-auto -mt-[220px]">
-              <label className="block text-sm font-medium">
+              <label className="block text-md font-medium">
                 LeetCode Username
               </label>
               <input
@@ -158,7 +180,7 @@ export function CodolioDashboard() {
                 value={leetcodeUsername}
                 onChange={(e) => setLeetcodeUsername(e.target.value)}
                 className="w-full p-2 mt-2 border rounded bg-gray-800 text-white"
-                placeholder="Enter Leetcode username"
+                placeholder="Enter Your Leetcode username"
               />
               <Button onClick={fetchLeetcodeData} className="mt-4">
                 Save LeetCode Data
@@ -241,7 +263,13 @@ export function CodolioDashboard() {
             </div>
 
             <Card className="col-span-1 lg:col-span-2 bg-gray-900">
-              
+            <CardContent className="p-6">
+                <div className="grid grid-cols-2 gap-4 mb-2">
+                <StatCard title="Total Questions" value={leetcodeData2?.totalSolved || "0"} />
+                  <StatCard title="Total Active Days" value="308" />
+                </div>
+                
+              </CardContent>
               <div className="p-4">
               <LineCharts userName={leetcodeData?.username as string} />
               </div>
@@ -254,15 +282,20 @@ export function CodolioDashboard() {
             </CardHeader>
             <CardContent className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
-                <Avatar className="w-24 h-24">
-                  <AvatarImage src="/placeholder.svg" alt="Siddharth Singh" />
-                  <AvatarFallback>SS</AvatarFallback>
-                </Avatar>
+                {leetcodeData?.avatar ? (
+                      <Image className="rounded-[100%]" src={leetcodeData.avatar} alt="LeetCode Avatar" width={100} height={100} />
+                    ) : (
+                      <User className="border rounded-[100%] p-3" height={100} width={100} />
+                    )}
                 <div>
                   <h3 className="text-2xl font-semibold">
                     {leetcodeData?.name}
                   </h3>
-                  <p className="text-gray-400">@siddharthsingh</p>
+                  <InfoItem icon={Link} text={`@${leetcodeData?.username || "jhon doe"}` } />
+                 <InfoItem
+                    icon={MapPin}
+                    text={leetcodeData?.country || "Country"}
+                  />
                   <p className="text-sm text-gray-400">
                     Last updated on 28-07-2024
                   </p>
@@ -270,7 +303,7 @@ export function CodolioDashboard() {
               </div>
               <div className="flex space-x-8">
                 <div>
-                  <div className="text-3xl font-bold">920</div>
+                  <div className="text-3xl font-bold">{leetcodeData2?.totalSolved}</div>
                   <div className="text-sm text-gray-400">Questions Solved</div>
                 </div>
                 <div>
@@ -303,4 +336,17 @@ function InfoItem({
 
 
 
+
+function StatCard({ title, value }: { title: string; value: string | number }) {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>{title}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="text-4xl font-bold">{value}</div>
+      </CardContent>
+    </Card>
+  );
+}
 

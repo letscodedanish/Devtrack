@@ -4,6 +4,7 @@ import { Inter } from 'next/font/google'
 import { cn } from '@/lib/utils'
 import './globals.css'
 import Navbar from '@/components/navbar'
+import { ThemeProvider } from 'next-themes'
 
 const fontHeading = Inter({
   subsets: ['latin'],
@@ -27,8 +28,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           fontBody.variable
         )}
       >
-        <Navbar />
-        <div>{children}</div>
+        <ThemeProvider> {/* Wrap your children with ThemeProvider */}
+          <Navbar />
+          <div>{children}</div>
+        </ThemeProvider>
       </body>
     </html>
   )

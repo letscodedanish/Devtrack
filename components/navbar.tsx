@@ -15,22 +15,21 @@ const Navbar: React.FC = () => {
       </div>
       <div className="flex items-center space-x-4">
         <Link href="/dashboard">
-          <Button variant="ghost">Dashboard</Button>
+          <Button className="text-md"
+          variant="ghost">Dashboard</Button>
         </Link>
         <Link href="/dashboard/event-tracker">
-          <Button variant="ghost">Question Tracker</Button>
+          <Button className="text-md" variant="ghost">Event Tracker</Button>
         </Link>
-        <Link href="/event-tracker">
-          <Button variant="ghost">Event Tracker</Button>
+        <Link href="/dashboard/sheets">
+          <Button className="text-md" variant="ghost">DSA Sheets</Button>
         </Link>
-        <Link href="/profile-tracker">
-          <Button variant="ghost">Profile Tracker</Button>
-        </Link>
-        <Button variant="ghost" size="icon">
+        <Button className="size-10" variant="ghost" size="icon">
           <Moon className="h-5 w-5" />
         </Button>
         <Link href="/login">
-          <Button>Login</Button>
+          <Button className="text-md"
+          >Login</Button>
         </Link>
       </div>
     </header>

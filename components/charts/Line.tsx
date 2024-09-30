@@ -26,9 +26,12 @@ interface ContestData {
     contestParticipation: {
         contest: {
             startTime: number;
-    };
-    rating: number;
-}[];
+        };
+        rating: number;
+    }[];
+    contestRating?: number;
+    contestGlobalRanking?: number;
+    contestAttend?: number; // Add this line to include contestAttend
 }
 
 const transformContestData = (data: ContestData) => {
@@ -98,43 +101,16 @@ export function LineCharts({userName}: {userName: string}) {
 
 
     <Card className="">
-      <CardContent className="p-6">
-                <div className="grid grid-cols-2 gap-4 mb-6">
-                <StatCard title="Total Questions" value={contest?.contestParticipation.length || "0"} />
-                  <StatCard title="Total Active Days" value="308" />
-                </div>
-                <div className="mb-6">
-                  <h4 className="text-lg font-semibold mb-2">Submissions</h4>
-                  {/* <div className="grid grid-cols-7 gap-1">
-                    {[...Array(35)].map((_, i) => (
-                      <div
-                        key={i}
-                        className={`h-4 rounded ${
-                          i % 7 === 0 ? "bg-green-500" : "bg-gray-700"
-                        }`}
-                      />
-                    ))}
-                  </div> */}
-
-  
-                </div>
+      <h4 className="text-lg font-semibold mb-4 p-4">Submissions</h4>
+      <CardContent>
                 <div className="grid grid-cols-2 gap-4 mb-6">
                   <Card>
                     <CardHeader>
                       <CardTitle>Total Contests</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <div className="text-4xl font-bold">16</div>
-                      <div className="mt-2">
-                        <div className="flex items-center justify-between">
-                          <span>Codechef</span>
-                          <span>6</span>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <span>Codeforces</span>
-                          <span>10</span>
-                        </div>
-                      </div>
+                      <div className="text-4xl font-bold">{contest?.contestAttend || "0"}</div>
+                      
                     </CardContent>
                   </Card>
                   <Card>
@@ -144,15 +120,14 @@ export function LineCharts({userName}: {userName: string}) {
                     <CardContent>
                       <div className="text-4xl font-bold">
                         {" "}
-                        {"16"}{" "}
+                        {contest?.contestRating}{" "}
                       </div>
-                      {/* <div className="text-sm text-gray-400">
-                        14 Sept 2020
-                        <br />
-                        September Challenge 2020 Division 2
-                        <br />
-                        Rank: #583
-                      </div> */}
+                      <div className="mt-2">
+                        <div className="flex items-center justify-between">
+                          <span>Contest Global Ranking</span>
+                          <span>{contest?.contestGlobalRanking}</span>
+                        </div>
+                      </div>
                     </CardContent>
                   </Card>
                 </div>
@@ -175,7 +150,7 @@ export function LineCharts({userName}: {userName: string}) {
                     />
                   </div>
                 </div>
-              </CardContent>
+      </CardContent>
       <CardHeader className="flex flex-col items-stretch space-y-0 border-b p-0 sm:flex-row">
         <div className="flex flex-1 flex-col justify-center gap-1 px-6 py-5 sm:py-6">
           <CardTitle>Line Chart - Contest Ratings</CardTitle>
@@ -263,18 +238,5 @@ function ProgressCard({
       </div>
       <Progress value={(value / max) * 100} className="h-2" />
     </div>
-  );
-}
-
-function StatCard({ title, value }: { title: string; value: string | number }) {
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{title}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="text-4xl font-bold">{value}</div>
-      </CardContent>
-    </Card>
   );
 }

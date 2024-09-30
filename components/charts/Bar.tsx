@@ -23,20 +23,23 @@ import {
 export const description = "A donut chart with text"
 
 interface BarComponentProps {
-
-    userName: string;
-  
-  }
+  userName: string;
+}
 
 interface UserProfileData {
-  totalSubmissions: { count: number }[];
+  totalSubmissions: { difficulty: string, count: number }[];
 }
 
 const transformUserProfileData = (data: UserProfileData) => {
+  // Ensure that totalSubmissions has data and map accordingly
+  const easy = data.totalSubmissions.find(sub => sub.difficulty === 'Easy')?.count || 0;
+  const medium = data.totalSubmissions.find(sub => sub.difficulty === 'Medium')?.count || 0;
+  const hard = data.totalSubmissions.find(sub => sub.difficulty === 'Hard')?.count || 0;
+
   return [
-    { category: "Easy", questions: data.totalSubmissions[1].count, fill: "var(--color-easy)" },
-    { category: "Medium", questions: data.totalSubmissions[2].count, fill: "var(--color-medium)" },
-    { category: "Hard", questions: data.totalSubmissions[3].count, fill: "var(--color-hard)" },
+    { category: "Easy", questions: easy, fill: "var(--color-easy)" },
+    { category: "Medium", questions: medium, fill: "var(--color-medium)" },
+    { category: "Hard", questions: hard, fill: "var(--color-hard)" },
   ]
 }
 
@@ -58,7 +61,7 @@ const chartConfig = {
   },
 } satisfies ChartConfig
 
-export function BarComponent({userName}: BarComponentProps) {
+export function BarComponent({ userName }: BarComponentProps) {
   interface ChartData {
     category: string;
     questions: number;
@@ -66,6 +69,7 @@ export function BarComponent({userName}: BarComponentProps) {
   }
   
   const [chartData, setChartData] = React.useState<ChartData[]>([])
+
   const fetchUserProfileData = async () => {
     const response = await fetch(`https://alfa-leetcode-api.onrender.com/userprofile/${userName}`)
     const data = await response.json()
@@ -77,7 +81,7 @@ export function BarComponent({userName}: BarComponentProps) {
       const transformedData = transformUserProfileData(data)
       setChartData(transformedData)
     })
-  }, [])
+  }, [userName]) // Include userName as a dependency
 
   const totalQuestions = React.useMemo(() => {
     return chartData.reduce((acc, curr) => acc + curr.questions, 0)
@@ -86,7 +90,7 @@ export function BarComponent({userName}: BarComponentProps) {
   return (
     <Card className="flex flex-col">
       <CardHeader className="items-center pb-0">
-        <CardTitle>Pie Chart - Donut with Text</CardTitle>
+        <CardTitle>Overall Progress</CardTitle>
         <CardDescription>LeetCode Questions Breakdown</CardDescription>
       </CardHeader>
       <CardContent className="flex-1 pb-0">
@@ -138,17 +142,19 @@ export function BarComponent({userName}: BarComponentProps) {
             </Pie>
           </PieChart>
         </ChartContainer>
-        <div className="flex flex-col justify-center space-y-4">
-            {chartData.map((data) => (
-              <div key={data.category} className="flex items-center space-x-2">
-                <div
-                  className="w-4 h-4"
-                  style={{ backgroundColor: data.fill }}
-                ></div>
-                <div className="text-lg font-medium">{data.category}: {data.questions}</div>
+        <div className="flex flex-col justify-center space-y-4 p-5">
+          {chartData.map((data) => (
+            <div key={data.category} className="flex items-center space-x-2">
+              <div
+                className="w-4 h-4"
+                style={{ backgroundColor: data.fill }}
+              ></div>
+              <div className="text-lg font-medium">
+                {data.category}: {data.questions}
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
+        </div>
       </CardContent>
       <CardFooter className="flex-col gap-2 text-sm">
         <div className="flex items-center gap-2 font-medium leading-none">
