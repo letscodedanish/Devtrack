@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ChevronDown, Star, MessageSquare, Youtube } from "lucide-react";
+import { ChevronDown, Star, MessageSquare, Youtube, CheckCircle, Circle } from "lucide-react";
 import Sidebar from "@/components/sidebar";
 
-export default function StriverSDESheet() {
+export default function Leeetcode150() {
   const [sheetData, setSheetData] = useState<any>(null); // State to hold the sheet data
   const [loading, setLoading] = useState<boolean>(true); // Loading state
   const [error, setError] = useState<string | null>(null); // Error state
@@ -13,7 +13,7 @@ export default function StriverSDESheet() {
   useEffect(() => {
     const fetchSheetData = async () => {
       try {
-        const response = await fetch('/sheets/striversheet.json');
+        const response = await fetch('/sheets/leetcode.json');
         if (!response.ok) {
           throw new Error('Failed to fetch the sheet data');
         }
@@ -54,7 +54,7 @@ export default function StriverSDESheet() {
   }, {});
 
   return (
-    <div className=" flex min-h-screen bg-black text-white">
+    <div className="flex min-h-screen bg-black text-white">
       <Sidebar isSidebarOpen={false} isDarkMode={false} />
       <main className="p-6">
         <h2 className="text-4xl font-bold mb-4">{sheet.name}</h2>
@@ -62,11 +62,7 @@ export default function StriverSDESheet() {
         <div className="space-y-4">
           {/* Iterate through each topic */}
           {Object.keys(groupedQuestions).map((topic, index) => (
-            <TopicSection
-              key={index}
-              title={topic}
-              questions={groupedQuestions[topic]}
-            />
+            <TopicSection key={index} title={topic} questions={groupedQuestions[topic]} />
           ))}
         </div>
       </main>
@@ -74,13 +70,7 @@ export default function StriverSDESheet() {
   );
 }
 
-function TopicSection({
-  title,
-  questions,
-}: {
-  title: string;
-  questions: any[];
-}) {
+function TopicSection({ title, questions }: { title: string; questions: any[] }) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -93,9 +83,7 @@ function TopicSection({
         <div className="flex items-center space-x-2">
           <span>{questions.length} questions</span>
           <ChevronDown
-            className={`h-5 w-5 transition-transform ${
-              isOpen ? "rotate-180" : ""
-            }`}
+            className={`h-5 w-5 transition-transform ${isOpen ? "rotate-180" : ""}`}
           />
         </div>
       </div>
@@ -112,18 +100,33 @@ function TopicSection({
 }
 
 function QuestionCard({ question }: { question: any }) {
+  const [isSolved, setIsSolved] = useState(question.isSolved || false);
+
+  const toggleSolved = () => {
+    setIsSolved(!isSolved);
+  };
+
   return (
-    <div className="flex items-center justify-between bg-gray-900 p-4 rounded-lg">
+    <div
+      className={`flex items-center justify-between bg-gray-900 p-4 rounded-lg ${
+        isSolved ? "opacity-50" : ""
+      }`}
+    >
       <div className="flex items-center space-x-4">
-        <div className="w-6 h-6 rounded-full border-2 border-gray-700" />
-        <div>
-        <a
+        {/* Solved/Not Solved icon */}
+        <div onClick={toggleSolved} className="cursor-pointer">
+          {isSolved ? <CheckCircle className="text-green-400" /> : <Circle className="text-gray-400" />}
+        </div>
+        <div className="first-letter:uppercase">
+          <a
             href={question.questionId.problemUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="font-medium text-blue-400 hover:underline"
+            className={`font-medium text-blue-400 hover:underline cursor-pointer  ${
+              isSolved ? "line-through" : ""
+            }`}
           >
-            {question.title}
+            {question.questionId.slug}
           </a>
           <div className="flex space-x-2 text-sm">
             {question.questionId?.topics?.map((topic: string, i: number) => (
