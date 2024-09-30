@@ -23,7 +23,7 @@ export function CodolioInterface() {
 
   const sheets: SheetData[] = [
     { title: "Striver SDE Sheet", link: "/dashboard/sheets/striver-sde", description: "Striver SDE sheet contains curated coding problems for software engineering preparation.", completionPercentage: 0 },
-    { title: "Top Interview 150: Leetcode", link: "#", description: "Top 150 Interview questions from LeetCode for thorough interview preparation.", completionPercentage: 0 },
+    { title: "Top Interview 150: Leetcode", link: "/dashboard/sheets/leetcode-150", description: "Top 150 Interview questions from LeetCode for thorough interview preparation.", completionPercentage: 0 },
     { title: "Blind 75", link: "#", description: "Blind 75 is a concise list of essential coding interview questions.", completionPercentage: 0 },
     { title: "Neetcode 150", link: "#", description: "Neetcode's 150 most common coding interview questions.", completionPercentage: 0 }
   ];

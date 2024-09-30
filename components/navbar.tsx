@@ -17,7 +17,7 @@ const Navbar: React.FC = () => {
         <Link href="/dashboard">
           <Button variant="ghost">Dashboard</Button>
         </Link>
-        <Link href="/question-tracker">
+        <Link href="/dashboard/event-tracker">
           <Button variant="ghost">Question Tracker</Button>
         </Link>
         <Link href="/event-tracker">
