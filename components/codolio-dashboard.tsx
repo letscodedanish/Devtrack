@@ -1,13 +1,140 @@
-'use client'
+"use client";
 
-import * as React from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Progress } from "@/components/ui/progress"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { MapPin, Building, Mail, Link, Phone, Briefcase, Calendar, Moon } from "lucide-react"
+import * as React from "react";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  MapPin,
+  Building,
+  Mail,
+  Link,
+  Phone,
+  Briefcase,
+  Calendar,
+  Moon,
+  User,
+} from "lucide-react";
+import { LineCharts } from "./charts/Line";
+import { BarComponent } from "./charts/Bar";
+
+interface LeetCodeProfile {
+  username: string;
+  name: string;
+  birthday: string;
+  avatar: string;
+  ranking: number;
+  reputation: number;
+  gitHub: string;
+  twitter: string | null;
+  linkedIN: string;
+  website: string[];
+  country: string;
+  company: string;
+  school: string;
+  skillTags: string[];
+  about: string;
+}
+
+interface Submission {
+  difficulty: string;
+  count: number;
+  submissions: number;
+}
+
+interface SubmissionCalendar {
+  [timestamp: string]: number;
+}
+
+interface RecentSubmission {
+  title: string;
+  titleSlug: string;
+  timestamp: string;
+  statusDisplay: string;
+  lang: string;
+  __typename: string;
+}
+
+interface MatchedUserStats {
+  acSubmissionNum: Submission[];
+  totalSubmissionNum: Submission[];
+}
+
+interface LeetCodeProfile2 {
+  totalSolved: number;
+  totalSubmissions: Submission[];
+  totalQuestions: number;
+  easySolved: number;
+  totalEasy: number;
+  mediumSolved: number;
+  totalMedium: number;
+  hardSolved: number;
+  totalHard: number;
+  ranking: number;
+  contributionPoint: number;
+  reputation: number;
+  submissionCalendar: SubmissionCalendar;
+  recentSubmissions: RecentSubmission[];
+  matchedUserStats: MatchedUserStats;
+}
+
+interface BarComponentProps {
+
+  userName: string;
+
+}
 
 export function CodolioDashboard() {
+  const [leetcodeUsername, setLeetcodeUsername] = React.useState("");
+  const [gfgHandle, setGfgHandle] = useState("");
+
+  const [leetcodeData, setLeetcodeData] = useState<LeetCodeProfile | null>(
+    null
+  );
+
+  const [leetcodeData2, setLeetcodeData2] = useState<LeetCodeProfile2 | null>(
+    null
+  );
+
+  interface GfgData {
+    data: {
+      name: string;
+      // Add other properties as needed
+    };
+  }
+
+  const [gfgData, setGfgData] = useState<GfgData | null>(null);
+
+  const fetchLeetcodeData = async () => {
+    try {
+      const response: Response = await fetch(
+        `https://alfa-leetcode-api.onrender.com/${leetcodeUsername}`
+      );
+      const data: LeetCodeProfile = await response.json();
+
+      const leetcodeSecondResponse: LeetCodeProfile2 = await (await fetch( `https://alfa-leetcode-api.onrender.com/userprofile/${leetcodeUsername}`)).json()
+
+      setLeetcodeData(data);
+      setLeetcodeData2(leetcodeSecondResponse);
+    } catch (error) {
+      console.error("Error fetching Leetcode data:", error);
+    }
+  };
+
+  const fetchGfgData = async () => {
+    try {
+      const response = await fetch(
+        `https://authapi.geeksforgeeks.org/api-get/user-profile-info/?handle=${gfgHandle}`
+      );
+      const data = await response.json();
+      setGfgData(data);
+    } catch (error) {
+      console.error("Error fetching GeeksforGeeks data:", error);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-black text-white">
       <main className="p-6">
@@ -20,29 +147,86 @@ export function CodolioDashboard() {
             Login / Signup →
           </Button>
 
+          <div className="flex gap-10 mb-6">
+            <div className="mb-4 ml-auto -mt-[220px]">
+              <label className="block text-sm font-medium">
+                LeetCode Username
+              </label>
+              <input
+                type="text"
+                value={leetcodeUsername}
+                onChange={(e) => setLeetcodeUsername(e.target.value)}
+                className="w-full p-2 mt-2 border rounded bg-gray-800 text-white"
+                placeholder="Enter Leetcode username"
+              />
+              <Button onClick={fetchLeetcodeData} className="mt-4">
+                Save LeetCode Data
+              </Button>
+            </div>
+            {/* <div>
+              <label className="block text-sm font-medium">
+                GeeksforGeeks Handle
+              </label>
+              <input
+                type="text"
+                value={gfgHandle}
+                onChange={(e) => setGfgHandle(e.target.value)}
+                className="w-full p-2 mt-2 border rounded bg-gray-800 text-white"
+                placeholder="Enter GeeksforGeeks handle"
+              />
+              <Button onClick={fetchGfgData} className="mt-4">
+                Save GFG Data
+              </Button>
+            </div> */}
+          </div>
+
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <Card className="col-span-1 bg-gray-900">
-              <CardContent className="p-6">
+            <div className="flex flex-col gap-10">
+            <Card className="col-span-1 bg-gray-900 h-[40%] ">
+              {/* Leetcode data */}
+              <CardContent className="p-6 mt-6">
                 <div className="flex items-center space-x-4 mb-6">
-                  <Avatar className="w-16 h-16">
-                    <AvatarImage src="/placeholder.svg" alt="Siddharth Singh" />
-                    <AvatarFallback>SS</AvatarFallback>
-                  </Avatar>
+                  {/* <Avatar className="w-16 h-16"> */}
+                    {
+                      leetcodeData?.avatar ?
+                    <Image className="rounded-[100%]" src={leetcodeData?.avatar} alt="LeetCode Avatar" width={100} height={100} />:
+                    <User className="border rounded-[100%] p-3" height={100}
+                    width={100} />
+                    }
+                  {/* </Avatar> */}
                   <div>
-                    <h3 className="text-xl font-semibold">Siddharth Singh</h3>
+                    {/* name */}
+                    <h3 className="text-xl font-semibold">
+                      {leetcodeData?.name ?? "Danish Khan"}
+                    </h3>
                     <Button variant="ghost" size="sm" className="mt-2">
                       Edit Profile
                     </Button>
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <InfoItem icon={MapPin} text="India" />
-                  <InfoItem icon={Building} text="DTU" />
-                  <InfoItem icon={Mail} text="siddharthsingh123@gmail.com" />
-                  <InfoItem icon={Link} text="@siddharthsingh" />
-                  <InfoItem icon={Phone} text="N/A" />
-                  <InfoItem icon={Briefcase} text="N/A" />
-                  <InfoItem icon={Calendar} text="N/A" />
+                  <InfoItem
+                    icon={MapPin}
+                    text={leetcodeData?.country || "Country"}
+                  />
+                  <InfoItem
+                    icon={Building}
+                    text={leetcodeData?.school || "School"}
+                  />
+                  {/* <InfoItem icon={Mail} text={leetcodeData.||"siddharthsingh123@gmail.com"} /> */}
+                  <InfoItem icon={Link} text={`@${leetcodeData?.username || "jhon doe"}` } />
+                  {/* <InfoItem icon={Phone} text={leetcodeData.} /> */}
+                  <InfoItem
+                    icon={Briefcase}
+                    text={leetcodeData?.gitHub || "Github"}
+                  />
+
+                  {leetcodeData?.twitter && (
+                    <InfoItem
+                      icon={Calendar}
+                      text={leetcodeData?.twitter || "JhonDoe"}
+                    />
+                  )}
                 </div>
                 <Button variant="outline" className="w-full mt-6">
                   Get your Codolio Card
@@ -50,70 +234,17 @@ export function CodolioDashboard() {
               </CardContent>
             </Card>
 
+            <Card >
+            <BarComponent
+             userName={leetcodeData?.username as string} />
+            </Card>
+            </div>
+
             <Card className="col-span-1 lg:col-span-2 bg-gray-900">
-              <CardContent className="p-6">
-                <div className="grid grid-cols-2 gap-4 mb-6">
-                  <StatCard title="Total Questions" value="920" />
-                  <StatCard title="Total Active Days" value="308" />
-                </div>
-                <div className="mb-6">
-                  <h4 className="text-lg font-semibold mb-2">Submissions</h4>
-                  <div className="grid grid-cols-7 gap-1">
-                    {[...Array(35)].map((_, i) => (
-                      <div
-                        key={i}
-                        className={`h-4 rounded ${
-                          i % 7 === 0 ? "bg-green-500" : "bg-gray-700"
-                        }`}
-                      />
-                    ))}
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-4 mb-6">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Total Contests</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-4xl font-bold">16</div>
-                      <div className="mt-2">
-                        <div className="flex items-center justify-between">
-                          <span>Codechef</span>
-                          <span>6</span>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <span>Codeforces</span>
-                          <span>10</span>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Rating</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-4xl font-bold">1718</div>
-                      <div className="text-sm text-gray-400">
-                        14 Sept 2020
-                        <br />
-                        September Challenge 2020 Division 2
-                        <br />
-                        Rank: #583
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-                <div>
-                  <h4 className="text-lg font-semibold mb-2">Problems Solved</h4>
-                  <div className="grid grid-cols-2 gap-4">
-                    <ProgressCard title="Fundamentals" value={127} max={200} />
-                    <ProgressCard title="DSA" value={675} max={1000} />
-                    <ProgressCard title="CS Fundamentals" value={48} max={100} />
-                    <ProgressCard title="Competitive Programming" value={70} max={100} />
-                  </div>
-                </div>
-              </CardContent>
+              
+              <div className="p-4">
+              <LineCharts userName={leetcodeData?.username as string} />
+              </div>
             </Card>
           </div>
 
@@ -128,9 +259,13 @@ export function CodolioDashboard() {
                   <AvatarFallback>SS</AvatarFallback>
                 </Avatar>
                 <div>
-                  <h3 className="text-2xl font-semibold">Siddharth Singh</h3>
+                  <h3 className="text-2xl font-semibold">
+                    {leetcodeData?.name}
+                  </h3>
                   <p className="text-gray-400">@siddharthsingh</p>
-                  <p className="text-sm text-gray-400">Last updated on 28-07-2024</p>
+                  <p className="text-sm text-gray-400">
+                    Last updated on 28-07-2024
+                  </p>
                 </div>
               </div>
               <div className="flex space-x-8">
@@ -148,39 +283,24 @@ export function CodolioDashboard() {
         </div>
       </main>
     </div>
-  )
+  );
 }
 
-function InfoItem({ icon: Icon, text }: { icon: React.ElementType; text: string }) {
+function InfoItem({
+  icon: Icon,
+  text,
+}: {
+  icon: React.ElementType;
+  text: string;
+}) {
   return (
     <div className="flex items-center space-x-2">
       <Icon className="h-5 w-5 text-gray-400" />
       <span>{text}</span>
     </div>
-  )
+  );
 }
 
-function StatCard({ title, value }: { title: string; value: string }) {
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{title}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="text-4xl font-bold">{value}</div>
-      </CardContent>
-    </Card>
-  )
-}
 
-function ProgressCard({ title, value, max }: { title: string; value: number; max: number }) {
-  return (
-    <div>
-      <div className="flex justify-between mb-1">
-        <span>{title}</span>
-        <span>{value}</span>
-      </div>
-      <Progress value={(value / max) * 100} className="h-2" />
-    </div>
-  )
-}
+
+
