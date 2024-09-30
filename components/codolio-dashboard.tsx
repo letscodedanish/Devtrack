@@ -179,7 +179,7 @@ export function CodolioDashboard() {
                 type="text"
                 value={leetcodeUsername}
                 onChange={(e) => setLeetcodeUsername(e.target.value)}
-                className="w-full p-2 mt-2 border rounded bg-gray-800 text-white"
+                className="w-full p-2 mt-2 border rounded text-white"
                 placeholder="Enter Your Leetcode username"
               />
               <Button onClick={fetchLeetcodeData} className="mt-4">
