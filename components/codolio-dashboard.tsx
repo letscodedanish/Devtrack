@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import Image from 'next/image';
 import {
   MapPin,
   Building,
@@ -187,12 +188,11 @@ export function CodolioDashboard() {
               <CardContent className="p-6 mt-6">
                 <div className="flex items-center space-x-4 mb-6">
                   {/* <Avatar className="w-16 h-16"> */}
-                    {
-                      leetcodeData?.avatar ?
-                    <Image className="rounded-[100%]" src={leetcodeData?.avatar} alt="LeetCode Avatar" width={100} height={100} />:
-                    <User className="border rounded-[100%] p-3" height={100}
-                    width={100} />
-                    }
+                    {leetcodeData?.avatar ? (
+                      <Image className="rounded-[100%]" src={leetcodeData.avatar} alt="LeetCode Avatar" width={100} height={100} />
+                    ) : (
+                      <User className="border rounded-[100%] p-3" height={100} width={100} />
+                    )}
                   {/* </Avatar> */}
                   <div>
                     {/* name */}
