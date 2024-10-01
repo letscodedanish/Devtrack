@@ -4,100 +4,41 @@ import * as React from "react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import Image from 'next/image';
+import Image from "next/image";
 import {
   MapPin,
   Building,
-  Mail,
   Link,
-  Phone,
   Briefcase,
   Calendar,
-  Moon,
   User,
 } from "lucide-react";
 import { LineCharts } from "./charts/Line";
 import { BarComponent } from "./charts/Bar";
 
-interface LeetCodeProfile {
-  username: string;
-  name: string;
-  birthday: string;
+type LeetCodeProfile = {
   avatar: string;
-  ranking: number;
-  reputation: number;
-  gitHub: string;
-  twitter: string | null;
-  linkedIN: string;
-  website: string[];
+  name: string;
   country: string;
-  company: string;
   school: string;
-  skillTags: string[];
-  about: string;
-}
+  username: string;
+  gitHub: string;
+  twitter?: string;
+};
 
-interface Submission {
-  difficulty: string;
-  count: number;
-  submissions: number;
-}
-
-interface SubmissionCalendar {
-  [timestamp: string]: number;
-}
-
-interface RecentSubmission {
-  title: string;
-  titleSlug: string;
-  timestamp: string;
-  statusDisplay: string;
-  lang: string;
-  __typename: string;
-}
-
-interface MatchedUserStats {
-  acSubmissionNum: Submission[];
-  totalSubmissionNum: Submission[];
-}
-
-interface LeetCodeProfile2 {
+type LeetCodeProfile2 = {
   totalSolved: number;
-  totalSubmissions: Submission[];
-  totalQuestions: number;
-  easySolved: number;
-  totalEasy: number;
-  mediumSolved: number;
-  totalMedium: number;
-  hardSolved: number;
-  totalHard: number;
-  ranking: number;
-  contributionPoint: number;
-  reputation: number;
-  submissionCalendar: SubmissionCalendar;
-  recentSubmissions: RecentSubmission[];
-  matchedUserStats: MatchedUserStats;
-}
-
-interface BarComponentProps {
-
-  userName: string;
-
-}
+};
 
 export function CodolioDashboard() {
   const [leetcodeUsername, setLeetcodeUsername] = React.useState("");
-
   const [leetcodeData, setLeetcodeData] = useState<LeetCodeProfile | null>(
     null
   );
-
   const [leetcodeData2, setLeetcodeData2] = useState<LeetCodeProfile2 | null>(
     null
   );
-
   const [loading, setLoading] = useState(false);
 
   const fetchLeetcodeData = async () => {
@@ -107,192 +48,167 @@ export function CodolioDashboard() {
         `https://alfa-leetcode-api.onrender.com/${leetcodeUsername}`
       );
       const data: LeetCodeProfile = await response.json();
-
-      const leetcodeSecondResponse: LeetCodeProfile2 = await (await fetch( `https://alfa-leetcode-api.onrender.com/userprofile/${leetcodeUsername}`)).json()
+      const leetcodeSecondResponse: LeetCodeProfile2 = await (
+        await fetch(
+          `https://alfa-leetcode-api.onrender.com/userprofile/${leetcodeUsername}`
+        )
+      ).json();
 
       setLeetcodeData(data);
       setLeetcodeData2(leetcodeSecondResponse);
     } catch (error) {
       console.error("Error fetching Leetcode data:", error);
-    }finally {
+    } finally {
       setLoading(false); // Stop loader when data is fetched
     }
   };
 
-  // const fetchLeetcodeData = async () => {
-  //   try {
-  //     // First, attempt to get the data from the database (via Next.js API)
-  //     const response = await fetch('/api/leetcode', {
-  //       method: 'POST',
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //       },
-  //       body: JSON.stringify({ username: leetcodeUsername }),
-  //     });
-
-  //     if (response.ok) {
-  //       const data = await response.json();
-  //       setLeetcodeData(data);
-  //       setLeetcodeData2({
-  //         totalSolved: data.totalSolved,
-  //         totalQuestions: data.totalQuestions,
-  //         easySolved: data.easySolved,
-  //         mediumSolved: data.mediumSolved,
-  //         hardSolved: data.hardSolved,
-  //         recentSubmissions: data.recentSubmissions,
-  //         totalSubmissions: data.totalSubmissions || [],
-  //         totalEasy: data.totalEasy || 0,
-  //         totalMedium: data.totalMedium || 0,
-  //         totalHard: data.totalHard || 0,
-  //         ranking: data.ranking || 0,
-  //         contributionPoint: data.contributionPoint || 0,
-  //         reputation: data.reputation || 0,
-  //         submissionCalendar: data.submissionCalendar || {},
-  //         matchedUserStats: data.matchedUserStats || { acSubmissionNum: [], totalSubmissionNum: [] },
-  //       });
-  //     } else {
-  //       console.error("Error fetching data from the database");
-  //     }
-  //   } catch (error) {
-  //     console.error("Error fetching Leetcode data:", error);
-  //   }
-  // };
-
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-black text-white w-full">
       <main className="p-6">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-5xl font-bold mb-4">Track, analyze & share</h2>
+          <div className="md:flex gap-10">
+          <div><h2 className="text-5xl font-bold mb-4">Track, analyze & share</h2>
           <p className="text-xl text-gray-400 mb-6">
             Codolio helps you navigate and track your coding journey to success
           </p>
           <Button size="lg" className="mb-12">
             Login / Signup →
-          </Button>
+          </Button></div>
 
-          <div className="flex gap-10 mb-6">
-            <div className="mb-4 ml-auto -mt-[220px]">
-              <label className="block text-md font-medium">
+          {/* Responsive form for Leetcode Username input */}
+          <div className="flex flex-col lg:flex-row lg:gap-10 mb-6">
+            <div className="mb-4 lg:ml-auto flex flex-col lg:mt-[10px]">
+              <label className="block text-lg font-medium">
                 LeetCode Username
               </label>
               <input
                 type="text"
                 value={leetcodeUsername}
                 onChange={(e) => setLeetcodeUsername(e.target.value)}
-                className="w-full p-2 mt-2 border rounded text-white"
+                className=" p-2 mt-2 border rounded-md text-white"
                 placeholder="Enter Your Leetcode username"
               />
-              <Button onClick={fetchLeetcodeData} className="mt-4">
+              <Button onClick={fetchLeetcodeData} className="mt-3">
                 Save LeetCode Data
               </Button>
             </div>
-            {/* <div>
-              <label className="block text-sm font-medium">
-                GeeksforGeeks Handle
-              </label>
-              <input
-                type="text"
-                value={gfgHandle}
-                onChange={(e) => setGfgHandle(e.target.value)}
-                className="w-full p-2 mt-2 border rounded bg-gray-800 text-white"
-                placeholder="Enter GeeksforGeeks handle"
-              />
-              <Button onClick={fetchGfgData} className="mt-4">
-                Save GFG Data
-              </Button>
-            </div> */}
+          </div>
           </div>
 
+          {/* Responsive grid system */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="flex flex-col gap-10">
-            <Card className="col-span-1 bg-gray-900 h-[40%] ">
-              {/* Leetcode data */}
-              <CardContent className="p-6 mt-6">
-                <div className="flex items-center space-x-4 mb-6">
-                  {/* <Avatar className="w-16 h-16"> */}
+              <Card className="col-span-1 bg-gray-900">
+                {/* Leetcode data */}
+                <div className="p-4">
+                  <div className="flex flex-col items-center space-x-0 lg:flex-row lg:space-x-4 mb-6">
                     {leetcodeData?.avatar ? (
-                      <Image className="rounded-[100%]" src={leetcodeData.avatar} alt="LeetCode Avatar" width={100} height={100} />
+                      <Image
+                        className="rounded-[100%]"
+                        src={leetcodeData.avatar}
+                        alt="LeetCode Avatar"
+                        width={120}
+                        height={120}
+                      />
                     ) : (
-                      <User className="border rounded-[100%] p-3" height={100} width={100} />
+                      <User
+                        className="border rounded-[100%] p-3"
+                        height={120}
+                        width={120}
+                      />
                     )}
-                  {/* </Avatar> */}
-                  <div>
-                    {/* name */}
-                    <h3 className="text-xl font-semibold">
-                      {leetcodeData?.name ?? "Danish Khan"}
-                    </h3>
-                    <Button variant="ghost" size="sm" className="mt-2">
-                      Edit Profile
-                    </Button>
+                    <div>
+                      <h3 className="text-2xl ml-4 font-mono font-semibold">
+                        {leetcodeData?.name ?? "Danish Khan"}
+                      </h3>
+                      <Button variant="secondary" size="sm" className="mt-2 ml-2">
+                        Edit Profile
+                      </Button>
+                    </div>
                   </div>
-                </div>
-                <div className="space-y-2">
-                  <InfoItem
-                    icon={MapPin}
-                    text={leetcodeData?.country || "Country"}
-                  />
-                  <InfoItem
-                    icon={Building}
-                    text={leetcodeData?.school || "School"}
-                  />
-                  {/* <InfoItem icon={Mail} text={leetcodeData.||"siddharthsingh123@gmail.com"} /> */}
-                  <InfoItem icon={Link} text={`@${leetcodeData?.username || "jhon doe"}` } />
-                  {/* <InfoItem icon={Phone} text={leetcodeData.} /> */}
-                  <InfoItem
-                    icon={Briefcase}
-                    text={leetcodeData?.gitHub || "Github"}
-                  />
-
-                  {leetcodeData?.twitter && (
+                  <div className="space-y-2">
                     <InfoItem
-                      icon={Calendar}
-                      text={leetcodeData?.twitter || "JhonDoe"}
+                      icon={MapPin}
+                      text={leetcodeData?.country || "Country"}
                     />
-                  )}
+                    <InfoItem
+                      icon={Building}
+                      text={leetcodeData?.school || "School"}
+                    />
+                    <InfoItem
+                      icon={Link}
+                      text={`@${leetcodeData?.username || "jhon doe"}`}
+                    />
+                    <InfoItem
+                      icon={Briefcase}
+                      text={leetcodeData?.gitHub || "Github"}
+                    />
+                    {leetcodeData?.twitter && (
+                      <InfoItem
+                        icon={Calendar}
+                        text={leetcodeData?.twitter || "JhonDoe"}
+                      />
+                    )}
+                  </div>
+                  <Button variant="outline" className="w-full mt-6">
+                    Get your Codolio Card
+                  </Button>
                 </div>
-                <Button variant="outline" className="w-full mt-6">
-                  Get your Codolio Card
-                </Button>
-              </CardContent>
-            </Card>
+              </Card>
 
-            <Card >
-            <BarComponent
-             userName={leetcodeData?.username as string} />
-            </Card>
+              <div>
+                <BarComponent userName={leetcodeData?.username as string} />
+              </div>
             </div>
 
+            {/* Chart and Stats */}
             <Card className="col-span-1 lg:col-span-2 bg-gray-900">
-            <CardContent className="p-6">
+              <div className="p-2">
                 <div className="grid grid-cols-2 gap-4 mb-2">
-                <StatCard title="Total Questions" value={leetcodeData2?.totalSolved || "0"} />
+                  <StatCard
+                    title="Total Questions"
+                    value={leetcodeData2?.totalSolved || "0"}
+                  />
                   <StatCard title="Total Active Days" value="308" />
                 </div>
-                
-              </CardContent>
-              <div className="p-4">
-              <LineCharts userName={leetcodeData?.username as string} />
+              </div>
+              <div className="">
+                <LineCharts userName={leetcodeData?.username as string} />
               </div>
             </Card>
           </div>
 
           <Card className="mt-6 bg-gray-900">
-            <CardHeader>
+            <div>
               <CardTitle>Codolio Card</CardTitle>
-            </CardHeader>
-            <CardContent className="flex items-center justify-between">
+            </div>
+            <CardContent className="flex flex-col items-center lg:flex-row lg:justify-between">
               <div className="flex items-center space-x-4">
                 {leetcodeData?.avatar ? (
-                      <Image className="rounded-[100%]" src={leetcodeData.avatar} alt="LeetCode Avatar" width={100} height={100} />
-                    ) : (
-                      <User className="border rounded-[100%] p-3" height={100} width={100} />
-                    )}
+                  <Image
+                    className="rounded-[100%]"
+                    src={leetcodeData.avatar}
+                    alt="LeetCode Avatar"
+                    width={100}
+                    height={100}
+                  />
+                ) : (
+                  <User
+                    className="border rounded-[100%] p-3"
+                    height={100}
+                    width={100}
+                  />
+                )}
                 <div>
                   <h3 className="text-2xl font-semibold">
                     {leetcodeData?.name}
                   </h3>
-                  <InfoItem icon={Link} text={`@${leetcodeData?.username || "jhon doe"}` } />
-                 <InfoItem
+                  <InfoItem
+                    icon={Link}
+                    text={`@${leetcodeData?.username || "jhon doe"}`}
+                  />
+                  <InfoItem
                     icon={MapPin}
                     text={leetcodeData?.country || "Country"}
                   />
@@ -301,10 +217,14 @@ export function CodolioDashboard() {
                   </p>
                 </div>
               </div>
-              <div className="flex space-x-8">
+              <div className="flex space-x-8 mt-6 lg:mt-0">
                 <div>
-                  <div className="text-3xl font-bold">{leetcodeData2?.totalSolved}</div>
-                  <div className="text-sm text-gray-400">Questions Solved</div>
+                  <div className="text-3xl font-bold">
+                    {leetcodeData2?.totalSolved || "99"} 
+                  </div>
+                  <div className="text-sm text-gray-400">
+                    Questions Solved
+                  </div>
                 </div>
                 <div>
                   <div className="text-3xl font-bold">308</div>
@@ -319,34 +239,26 @@ export function CodolioDashboard() {
   );
 }
 
-function InfoItem({
-  icon: Icon,
-  text,
-}: {
-  icon: React.ElementType;
-  text: string;
-}) {
+// InfoItem Component
+function InfoItem({ icon: Icon, text }: { icon: React.ElementType; text: string }) {
   return (
     <div className="flex items-center space-x-2">
-      <Icon className="h-5 w-5 text-gray-400" />
-      <span>{text}</span>
+      <Icon className="h-5 w-5 text-gray-400 sm:h-6 sm:w-6" /> {/* Responsive icon size */}
+      <span className="text-sm sm:text-base">{text}</span> {/* Responsive text size */}
     </div>
   );
 }
 
-
-
-
+// StatCard Component
 function StatCard({ title, value }: { title: string; value: string | number }) {
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>{title}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="text-4xl font-bold">{value}</div>
-      </CardContent>
+      <div>
+        <div className=" font-semibold text-sm sm:text-2xl">{title}</div> {/* Responsive title size */}
+      </div>
+      <div>
+        <div className="text-sm sm:text-3xl font-bold">{value}</div> {/* Responsive value size */}
+      </div>
     </Card>
   );
 }
-

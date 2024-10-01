@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { TrendingUp } from "lucide-react"
-import { Label, Pie, PieChart } from "recharts"
-import { useEffect } from "react"
+import * as React from "react";
+import { TrendingUp } from "lucide-react";
+import { Label, Pie, PieChart } from "recharts";
+import { useEffect } from "react";
 
 import {
   Card,
@@ -12,36 +12,35 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
+} from "@/components/ui/card";
 import {
   ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
-} from "@/components/ui/chart"
+} from "@/components/ui/chart";
 
-export const description = "A donut chart with text"
+export const description = "A donut chart with text";
 
 interface BarComponentProps {
   userName: string;
 }
 
 interface UserProfileData {
-  totalSubmissions: { difficulty: string, count: number }[];
+  totalSubmissions: { difficulty: string; count: number }[];
 }
 
 const transformUserProfileData = (data: UserProfileData) => {
-  // Ensure that totalSubmissions has data and map accordingly
-  const easy = data.totalSubmissions.find(sub => sub.difficulty === 'Easy')?.count || 0;
-  const medium = data.totalSubmissions.find(sub => sub.difficulty === 'Medium')?.count || 0;
-  const hard = data.totalSubmissions.find(sub => sub.difficulty === 'Hard')?.count || 0;
+  const easy = data.totalSubmissions.find((sub) => sub.difficulty === "Easy")?.count || 0;
+  const medium = data.totalSubmissions.find((sub) => sub.difficulty === "Medium")?.count || 0;
+  const hard = data.totalSubmissions.find((sub) => sub.difficulty === "Hard")?.count || 0;
 
   return [
     { category: "Easy", questions: easy, fill: "var(--color-easy)" },
     { category: "Medium", questions: medium, fill: "var(--color-medium)" },
     { category: "Hard", questions: hard, fill: "var(--color-hard)" },
-  ]
-}
+  ];
+};
 
 const chartConfig = {
   questions: {
@@ -59,7 +58,7 @@ const chartConfig = {
     label: "Hard",
     color: "hsl(var(--chart-3))",
   },
-} satisfies ChartConfig
+} satisfies ChartConfig;
 
 export function BarComponent({ userName }: BarComponentProps) {
   interface ChartData {
@@ -67,42 +66,39 @@ export function BarComponent({ userName }: BarComponentProps) {
     questions: number;
     fill: string;
   }
-  
-  const [chartData, setChartData] = React.useState<ChartData[]>([])
+
+  const [chartData, setChartData] = React.useState<ChartData[]>([]);
 
   const fetchUserProfileData = async () => {
-    const response = await fetch(`https://alfa-leetcode-api.onrender.com/userprofile/${userName}`)
-    const data = await response.json()
-    return data
-  }
+    const response = await fetch(`https://alfa-leetcode-api.onrender.com/userprofile/${userName}`);
+    const data = await response.json();
+    return data;
+  };
 
   useEffect(() => {
     fetchUserProfileData().then((data) => {
-      const transformedData = transformUserProfileData(data)
-      setChartData(transformedData)
-    })
-  }, [userName]) // Include userName as a dependency
+      const transformedData = transformUserProfileData(data);
+      setChartData(transformedData);
+    });
+  }, [userName]); // Include userName as a dependency
 
   const totalQuestions = React.useMemo(() => {
-    return chartData.reduce((acc, curr) => acc + curr.questions, 0)
-  }, [chartData])
+    return chartData.reduce((acc, curr) => acc + curr.questions, 0);
+  }, [chartData]);
 
   return (
     <Card className="flex flex-col">
-      <CardHeader className="items-center pb-0">
-        <CardTitle>Overall Progress</CardTitle>
-        <CardDescription>LeetCode Questions Breakdown</CardDescription>
-      </CardHeader>
-      <CardContent className="flex-1 pb-0">
+      <div className="items-center pb-0">
+        <CardTitle className="text-lg sm:text-xl">Overall Progress</CardTitle>
+        <CardDescription className="text-sm sm:text-base">LeetCode Questions Breakdown</CardDescription>
+      </div>
+      <div className="flex-1 pb-0">
         <ChartContainer
           config={chartConfig}
-          className="mx-auto aspect-square max-h-[250px]"
+          className="mx-auto aspect-square max-h-[300px] md:max-h-[250px]"
         >
           <PieChart>
-            <ChartTooltip
-              cursor={false}
-              content={<ChartTooltipContent hideLabel />}
-            />
+            <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
             <Pie
               data={chartData}
               dataKey="questions"
@@ -123,19 +119,19 @@ export function BarComponent({ userName }: BarComponentProps) {
                         <tspan
                           x={viewBox.cx}
                           y={viewBox.cy}
-                          className="fill-foreground text-3xl font-bold"
+                          className="fill-foreground text-3xl md:text-4xl font-bold"
                         >
                           {totalQuestions.toLocaleString()}
                         </tspan>
                         <tspan
                           x={viewBox.cx}
                           y={(viewBox.cy || 0) + 24}
-                          className="fill-muted-foreground"
+                          className="fill-muted-foreground text-sm md:text-base"
                         >
                           Questions
                         </tspan>
                       </text>
-                    )
+                    );
                   }
                 }}
               />
@@ -149,21 +145,14 @@ export function BarComponent({ userName }: BarComponentProps) {
                 className="w-4 h-4"
                 style={{ backgroundColor: data.fill }}
               ></div>
-              <div className="text-lg font-medium">
+              <div className="text-base sm:text-lg font-medium">
                 {data.category}: {data.questions}
               </div>
             </div>
           ))}
         </div>
-      </CardContent>
-      <CardFooter className="flex-col gap-2 text-sm">
-        <div className="flex items-center gap-2 font-medium leading-none">
-          Trending up by 5.2% this month <TrendingUp className="h-4 w-4" />
-        </div>
-        <div className="leading-none text-muted-foreground">
-          Showing total questions solved
-        </div>
-      </CardFooter>
+      </div>
+      
     </Card>
-  )
+  );
 }
