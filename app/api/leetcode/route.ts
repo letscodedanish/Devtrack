@@ -1,12 +1,13 @@
-// pages/api/leetcode.ts
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "../../../lib/prisma"; // adjust the path if needed
 import { NextRequest, NextResponse } from "next/server";
-// new build
-
-const prisma = new PrismaClient();
 
 export async function POST(req: NextRequest) {
   try {
+    const contentType = req.headers.get('content-type');
+    if (contentType !== 'application/json') {
+      return NextResponse.json({ message: 'Invalid content type', status: 400 });
+    }
+
     const { leetCodeUserName }: { leetCodeUserName: string } = await req.json();
 
     // Check if user data already exists in the database
@@ -16,25 +17,30 @@ export async function POST(req: NextRequest) {
 
     if (existingProfile) {
       // If data exists, return it
-
       return NextResponse.json({
         profile: { ...existingProfile },
         status: 200,
       });
     }
 
-    // Otherwise, fetch data from the external API
-    const leetcodeProfileResponse = await fetch(
-      `https://alfa-leetcode-api.onrender.com/${leetCodeUserName}`
-    );
-    const leetcodeProfile = await leetcodeProfileResponse.json();
+    // Fetch data from the external API
+    let leetcodeProfile, leetcodeStats;
+    try {
+      const leetcodeProfileResponse = await fetch(
+        `https://alfa-leetcode-api.onrender.com/${leetCodeUserName}`
+      );
+      leetcodeProfile = await leetcodeProfileResponse.json();
 
-    const leetcodeStatsResponse = await fetch(
-      `https://alfa-leetcode-api.onrender.com/userprofile/${leetCodeUserName}`
-    );
-    const leetcodeStats = await leetcodeStatsResponse.json();
+      const leetcodeStatsResponse = await fetch(
+        `https://alfa-leetcode-api.onrender.com/userprofile/${leetCodeUserName}`
+      );
+      leetcodeStats = await leetcodeStatsResponse.json();
+    } catch (error) {
+      console.error("Error fetching LeetCode data:", error);
+      return NextResponse.json({ message: "Failed to fetch LeetCode data", status: 500 });
+    }
 
-    // Save the fetched data into your database
+    // Save the fetched data into the database
     const newProfile = await prisma.leetcodeProfile.create({
       data: {
         username: leetcodeProfile.username,
@@ -62,7 +68,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ profile: { ...newProfile }, status: 200 });
   } catch (error) {
-    console.error(error);
+    console.error("Error processing request:", error);
     return NextResponse.json({ message: "Something went wrong", status: 500 });
   }
 }
