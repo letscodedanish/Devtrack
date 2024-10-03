@@ -16,46 +16,27 @@ import {
 } from "lucide-react";
 import { LineCharts } from "./charts/Line";
 import { BarComponent } from "./charts/Bar";
-
-type LeetCodeProfile = {
-  avatar: string;
-  name: string;
-  country: string;
-  school: string;
-  username: string;
-  gitHub: string;
-  twitter?: string;
-};
-
-type LeetCodeProfile2 = {
-  totalSolved: number;
-};
+import { LeetcodeProfileType } from "@/utils/DatabaseModelType";
+import axios from "axios";
 
 export function CodolioDashboard() {
-  const [leetcodeUsername, setLeetcodeUsername] = React.useState("");
-  const [leetcodeData, setLeetcodeData] = useState<LeetCodeProfile | null>(
+  const [leetCodeUserName, setLeetcodeUsername] = React.useState("");
+  const [leetcodeData, setLeetcodeData] = useState<LeetcodeProfileType | null>(
     null
   );
-  const [leetcodeData2, setLeetcodeData2] = useState<LeetCodeProfile2 | null>(
-    null
-  );
+
   const [loading, setLoading] = useState(false);
 
   const fetchLeetcodeData = async () => {
     setLoading(true);
     try {
-      const response: Response = await fetch(
-        `https://alfa-leetcode-api.onrender.com/${leetcodeUsername}`
-      );
-      const data: LeetCodeProfile = await response.json();
-      const leetcodeSecondResponse: LeetCodeProfile2 = await (
-        await fetch(
-          `https://alfa-leetcode-api.onrender.com/userprofile/${leetcodeUsername}`
-        )
-      ).json();
+      const response = await axios.post("/api/leetcode", {
+        leetCodeUserName,
+      });
 
-      setLeetcodeData(data);
-      setLeetcodeData2(leetcodeSecondResponse);
+      console.log("Leetcode data:", response);
+
+      setLeetcodeData(response.data.profile);
     } catch (error) {
       console.error("Error fetching Leetcode data:", error);
     } finally {
@@ -68,32 +49,37 @@ export function CodolioDashboard() {
       <main className="p-6">
         <div className="max-w-6xl mx-auto">
           <div className="md:flex gap-10">
-          <div><h2 className="text-5xl font-bold mb-4">Track, analyze & share</h2>
-          <p className="text-xl text-gray-400 mb-6">
-            Codolio helps you navigate and track your coding journey to success
-          </p>
-          <Button size="lg" className="mb-12">
-            Login / Signup →
-          </Button></div>
-
-          {/* Responsive form for Leetcode Username input */}
-          <div className="flex flex-col lg:flex-row lg:gap-10 mb-6">
-            <div className="mb-4 lg:ml-auto flex flex-col lg:mt-[10px]">
-              <label className="block text-lg font-medium">
-                LeetCode Username
-              </label>
-              <input
-                type="text"
-                value={leetcodeUsername}
-                onChange={(e) => setLeetcodeUsername(e.target.value)}
-                className=" p-2 mt-2 border rounded-md text-white"
-                placeholder="Enter Your Leetcode username"
-              />
-              <Button onClick={fetchLeetcodeData} className="mt-3">
-                Save LeetCode Data
+            <div>
+              <h2 className="text-5xl font-bold mb-4">
+                Track, analyze & share
+              </h2>
+              <p className="text-xl text-gray-400 mb-6">
+                Codolio helps you navigate and track your coding journey to
+                success
+              </p>
+              <Button size="lg" className="mb-12">
+                Login / Signup →
               </Button>
             </div>
-          </div>
+
+            {/* Responsive form for Leetcode Username input */}
+            <div className="flex flex-col lg:flex-row lg:gap-10 mb-6">
+              <div className="mb-4 lg:ml-auto flex flex-col lg:mt-[10px]">
+                <label className="block text-lg font-medium">
+                  LeetCode Username
+                </label>
+                <input
+                  type="text"
+                  value={leetCodeUserName}
+                  onChange={(e) => setLeetcodeUsername(e.target.value)}
+                  className=" p-2 mt-2 border rounded-md text-white"
+                  placeholder="Enter Your Leetcode username"
+                />
+                <Button onClick={fetchLeetcodeData} className="mt-3">
+                  Save LeetCode Data
+                </Button>
+              </div>
+            </div>
           </div>
 
           {/* Responsive grid system */}
@@ -122,7 +108,11 @@ export function CodolioDashboard() {
                       <h3 className="text-2xl ml-4 font-mono font-semibold">
                         {leetcodeData?.name ?? "Danish Khan"}
                       </h3>
-                      <Button variant="secondary" size="sm" className="mt-2 ml-2">
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        className="mt-2 ml-2"
+                      >
                         Edit Profile
                       </Button>
                     </div>
@@ -168,7 +158,7 @@ export function CodolioDashboard() {
                 <div className="grid grid-cols-2 gap-4 mb-2">
                   <StatCard
                     title="Total Questions"
-                    value={leetcodeData2?.totalSolved || "0"}
+                    value={leetcodeData?.totalSolved || "0"}
                   />
                   <StatCard title="Total Active Days" value="308" />
                 </div>
@@ -220,11 +210,9 @@ export function CodolioDashboard() {
               <div className="flex space-x-8 mt-6 lg:mt-0">
                 <div>
                   <div className="text-3xl font-bold">
-                    {leetcodeData2?.totalSolved || "99"} 
+                    {leetcodeData?.totalSolved || "99"}
                   </div>
-                  <div className="text-sm text-gray-400">
-                    Questions Solved
-                  </div>
+                  <div className="text-sm text-gray-400">Questions Solved</div>
                 </div>
                 <div>
                   <div className="text-3xl font-bold">308</div>
@@ -240,11 +228,19 @@ export function CodolioDashboard() {
 }
 
 // InfoItem Component
-function InfoItem({ icon: Icon, text }: { icon: React.ElementType; text: string }) {
+function InfoItem({
+  icon: Icon,
+  text,
+}: {
+  icon: React.ElementType;
+  text: string;
+}) {
   return (
     <div className="flex items-center space-x-2">
-      <Icon className="h-5 w-5 text-gray-400 sm:h-6 sm:w-6" /> {/* Responsive icon size */}
-      <span className="text-sm sm:text-base">{text}</span> {/* Responsive text size */}
+      <Icon className="h-5 w-5 text-gray-400 sm:h-6 sm:w-6" />{" "}
+      {/* Responsive icon size */}
+      <span className="text-sm sm:text-base">{text}</span>{" "}
+      {/* Responsive text size */}
     </div>
   );
 }
@@ -254,10 +250,12 @@ function StatCard({ title, value }: { title: string; value: string | number }) {
   return (
     <Card>
       <div>
-        <div className=" font-semibold text-sm sm:text-2xl">{title}</div> {/* Responsive title size */}
+        <div className=" font-semibold text-sm sm:text-2xl">{title}</div>{" "}
+        {/* Responsive title size */}
       </div>
       <div>
-        <div className="text-sm sm:text-3xl font-bold">{value}</div> {/* Responsive value size */}
+        <div className="text-sm sm:text-3xl font-bold">{value}</div>{" "}
+        {/* Responsive value size */}
       </div>
     </Card>
   );
