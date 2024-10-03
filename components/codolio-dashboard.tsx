@@ -34,8 +34,6 @@ export function CodolioDashboard() {
         leetCodeUserName,
       });
 
-      console.log("Leetcode data:", response);
-
       setLeetcodeData(response.data.profile);
     } catch (error) {
       console.error("Error fetching Leetcode data:", error);
